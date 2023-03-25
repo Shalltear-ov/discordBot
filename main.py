@@ -36,6 +36,7 @@ async def load(ctx: disnake.ApplicationCommandInteraction, extension):
 
 for file in os.listdir("./cogs"):
     if file.endswith(".py"):
+        print(1)
         client.load_extension(f"cogs.{file[:-3]}")
 
 
