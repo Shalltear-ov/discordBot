@@ -24,25 +24,22 @@ async def del_ban_user(member, role, end, ban_id, type_):
 
 
 async def run_del_ban_role(members):
-    tasks = []
-    for member in members:
-        user = User(member.id)
-        for ban in user.get_bans():
-            type_, ban_id, end = ban
-            end = datetime.strptime(end, SETTING['FORMAT_DATE'])
-            now = datetime.now()
-            role = member.get_role(SETTING[type_])
-            if end <= now:
-                user.sub_ban(ban_id)
-                if role is not None:
-                    await member.remove_roles(role)
-                    await member.guild.get_channel(SETTING['channel']).send(
-                        f"{member.mention} разбанен причина: истекло время")
-                continue
-            tasks.append(asyncio.create_task(del_ban_user(member, role, end, ban_id, type_)))
-    for task in tasks:
-        await task
-    print("end")
+    async with asyncio.TaskGroup() as tg:
+        for member in members:
+            user = User(member.id)
+            for ban in user.get_bans():
+                type_, ban_id, end = ban
+                end = datetime.strptime(end, SETTING['FORMAT_DATE'])
+                now = datetime.now()
+                role = member.get_role(SETTING[type_])
+                if end <= now:
+                    user.sub_ban(ban_id)
+                    if role is not None:
+                        await member.remove_roles(role)
+                        await member.guild.get_channel(SETTING['channel']).send(
+                            f"{member.mention} разбанен причина: истекло время")
+                    continue
+                tg.create_task(del_ban_user(member, role, end, ban_id, type_))
 
 
 class Events(commands.Cog):
@@ -60,6 +57,7 @@ class Events(commands.Cog):
     async def on_message(self, message):
         if message.author == self.bot.user:
             return
+        print(message.content)
         User(message.author.id).add_money(1)
 
     @commands.Cog.listener()
