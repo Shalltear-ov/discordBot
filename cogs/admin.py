@@ -5,7 +5,7 @@ import disnake
 import asyncio
 from disnake.ui import View, Button, UserSelect, Modal, TextInput
 from disnake import ButtonStyle, TextInputStyle
-from Userform import User, EMBED_CLASS, SETTING
+from Userform import User, EMBED_CLASS, SETTING, SHOP_ROLE
 
 EMBED = EMBED_CLASS()
 
@@ -175,6 +175,12 @@ class Admin(commands.Cog):
             await member.remove_roles(role)
             user.unban(ban_id)
             await modal.send(f"{member.mention} разбанен причина: истекло время")
+
+    @commands.slash_command(name='add_role', description='admin panel', guild_ids=[SETTING['GUILD_ID']])
+    @commands.has_permissions(administrator=True)
+    async def add_role(self, ctx, role: disnake.Role, cost: Optional[int]):
+        SHOP_ROLE().add_role_shop(role_id=role.id, user_id=ctx.author.id, cost=cost)
+        await ctx.send("Успешно")
 
 
 def setup(bot):
