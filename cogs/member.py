@@ -25,6 +25,10 @@ class Member(commands.Cog):
         embed = EMBED.get_balance_embed(username, image, user.balance)
         await ctx.response.send_message(embed=embed)
 
+    @commands.slash_command(name='balance', description='get your balance', guild_ids=[GUILD_ID])
+    async def shop(self, ctx):
+        pass
+
 
 def setup(bot):
     bot.add_cog(Member(bot))
