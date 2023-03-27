@@ -54,10 +54,9 @@ class Events(commands.Cog):
         await run_del_ban_role(guild.members)
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: disnake.Message):
         if message.author == self.bot.user:
             return
-        print(message.content)
         User(message.author.id).add_money(1)
 
     @commands.Cog.listener()
