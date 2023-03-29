@@ -36,15 +36,14 @@ class Member(commands.Cog):
         embed = EMBED.get_balance_embed(username, image, user.balance)
         await ctx.response.send_message(embed=embed)
 
-    @commands.slash_command(name='test_shop', description='role shop', guild_ids=[GUILD_ID])
-    async def test_shop(self, ctx: disnake.MessageCommandInteraction):
+    @commands.slash_command(name='shop', description='role shop', guild_ids=[GUILD_ID])
+    async def shop(self, ctx: disnake.MessageCommandInteraction):
         view = SHOP_VIEW(ctx.author)
         embed = await view.shop_open(0)
         await ctx.response.send_message(embed=embed, view=view)
         await view.wait()
         await view.close()
-        if not view.is_stop:
-            await ctx.edit_original_message(view=view)
+        await ctx.edit_original_message(view=view)
 
 
 def setup(bot):
