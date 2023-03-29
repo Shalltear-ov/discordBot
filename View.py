@@ -8,24 +8,23 @@ EMBED = EMBED_CLASS()
 
 class SHOP(View):
     def __init__(self, author):
-        super().__init__(timeout=5)
+        super().__init__(timeout=10)
         self.author = author
-        self.is_stop = False
 
     async def accept(self, inter: disnake.MessageInteraction):
         if self.author != inter.author:
             return
+        self.clear_items()
         role_id = inter.component.custom_id.split()[2]
         key = SHOP_DATA.buy_role(role_id, User(inter.author.id))
         if key:
             role = inter.guild.get_role(int(role_id))
             if role is not None:
                 await inter.author.add_roles(role)
-                await inter.response.edit_message("ty", embed=None, components=None)
-                self.is_stop = True
-                self.stop()
+                await inter.response.edit_message("ty", embed=None, view=self)
         else:
-            await inter.response.edit_message("Не хватает монет", embed=None, components=None)
+            await inter.response.edit_message("Не хватает монет", embed=None, view=self)
+        self.stop()
 
     async def discard(self, inter: disnake.MessageInteraction):
         if self.author != inter.author:
