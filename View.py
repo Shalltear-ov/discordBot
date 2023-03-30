@@ -1,7 +1,8 @@
 import disnake
-from disnake.ui import View, Button, button, StringSelect
+from disnake.ui import View, Button, button, StringSelect, Modal, TextInput
 from disnake import ButtonStyle
 from Userform import SHOP_ROLE, Select, EMBED_CLASS, User
+
 SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
 
@@ -94,3 +95,16 @@ class SHOP(View):
         return self
 
 
+class ProfileView(View):
+    def __init__(self, author):
+        super().__init__(timeout=30)
+        self.author = author
+
+    @button(label="Edit bio.", style=disnake.ButtonStyle.blurple)
+    async def edit(self, hui, interaction: disnake.Interaction):
+        if self.author != interaction.author:
+            return
+        coins_count = TextInput(label="About me", placeholder="Write something about yourself.",
+                                custom_id="desc", style=disnake.TextInputStyle.short, max_length=140)
+        await interaction.response.send_modal(
+            modal=Modal(title="Let's change it.", components=coins_count, custom_id='edit_desc'))
