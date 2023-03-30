@@ -4,8 +4,8 @@ import disnake
 import asyncio
 from disnake import ButtonStyle, Emoji
 from disnake.ui import Button
-from Userform import User, EMBED_CLASS, SHOP_ROLE, Select
-from View import SHOP as SHOP_VIEW
+from Userform import User, EMBED_CLASS, SHOP_ROLE, Select, SETTING
+from View import SHOP as SHOP_VIEW, ProfileView
 GUILD_ID = 972208613663854593
 EMBED = EMBED_CLASS()
 SHOP = SHOP_ROLE()
@@ -44,6 +44,23 @@ class Member(commands.Cog):
         await view.wait()
         await view.close()
         await ctx.edit_original_message(view=view)
+
+    @commands.slash_command(name="profile", description="Let you see an information about specific user.",
+                            guild_ids=[SETTING['GUILD_ID']])
+    async def profile(self, ctx, member: Optional[disnake.Member] = None):
+        view = ProfileView(ctx.author)
+        if member is None:
+            await ctx.send(embed=EMBED.profile_embed(ctx.author), view=view)
+        else:
+            await ctx.send(embed=EMBED.profile_embed(member), view=view)
+
+    @commands.Cog.listener("on_modal_submit")
+    async def modal_admin(self, modal: disnake.ModalInteraction):
+        values = modal.text_values
+        if modal.custom_id == "edit_desc":
+            user = User(modal.author.id)
+            user.edit_desc(values['desc'])
+            await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=ProfileView(modal.author))
 
 
 def setup(bot):
