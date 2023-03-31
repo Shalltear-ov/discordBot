@@ -7,6 +7,7 @@ from disnake.ui import Button
 from Userform import User, EMBED_CLASS, SHOP_ROLE, Select
 from View import SHOP as SHOP_VIEW, ProfileView, VersusGame
 from config import SETTING
+from typing import Optional
 EMBED = EMBED_CLASS()
 SHOP = SHOP_ROLE()
 EMOJI_SORT = None
@@ -79,21 +80,25 @@ class Member(commands.Cog):
 
     @commands.slash_command(name="test", description="Let you see an information about specific user.",
                             guild_ids=[SETTING['GUILD_ID']])
-    async def test(self, ctx: disnake.MessageCommandInteraction):
-        await ctx.send(embed=EMBED.versus_embed(ctx.author), view=VersusGame())
+    async def test(self, ctx: disnake.MessageCommandInteraction, cost: Optional[int]):
+        view = VersusGame(ctx.author)
+        await view.open_versus()
+        await ctx.response.send_message(embed=EMBED.versus_embed(ctx.author, cost), view=view)
+        await view.wait()
+
         # for i in range(5):
         #     await ctx.edit_original_message(f"{5 - i}", embed=EMBED.versus_embed(ctx.author))
         #     await asyncio.sleep(0.01)
         # await ctx.edit_original_message("end")
 
-    @commands.Cog.listener("on_button_click")
-    async def button_fight_decision(self, inter: disnake.MessageInteraction):
-        if inter.component.custom_id == "accept_fight":
-            print("gotcha acc")
-            await inter.response.edit_message(view=VersusGame())
-        elif inter.component.custom_id == "deny_fight":
-            print("gotcha deny")
-            await inter.response.edit_message(view=VersusGame())
+    # @commands.Cog.listener("on_button_click")
+    # async def button_fight_decision(self, inter: disnake.MessageInteraction):
+    #     if inter.component.custom_id == "accept_fight":
+    #         print("gotcha acc")
+    #         await inter.response.edit_message(view=VersusGame())
+    #     elif inter.component.custom_id == "deny_fight":
+    #         print("gotcha deny")
+    #         await inter.response.edit_message(view=VersusGame())
 
 
 def setup(bot):
