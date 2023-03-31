@@ -77,6 +77,15 @@ class Member(commands.Cog):
             await view.open_profile()
             await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=view)
 
+    @commands.slash_command(name="test", description="Let you see an information about specific user.",
+                            guild_ids=[SETTING['GUILD_ID']])
+    async def test(self, ctx: disnake.MessageCommandInteraction):
+        await ctx.send("start")
+        for i in range(5):
+            await ctx.edit_original_message(f"{5 - i}")
+            await asyncio.sleep(0.01)
+        await ctx.delete_original_message()
+
 
 def setup(bot):
     bot.add_cog(Member(bot))
