@@ -323,10 +323,17 @@ class EMBED_CLASS:
         return embed
 
     @staticmethod
-    def versus_embed(first_member):
-        embed = Embed(title="So what u gonna do, boi?")
+    def versus_embed(first_member, cost):
+        embed = Embed(title=f"So what u gonna do, boi?\nAre you ready to bet your {cost} <a:Coin:1085923871238135911>?")
         embed.set_author(name=f"{first_member} invited you to a roll fight.", icon_url=f"{first_member.avatar}")
         embed.set_image("https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDVhNTMyNmFkMmUyNDc5NDEzZDY5NDYxMGU1OWY0N2FmNTU0NTJiMCZjdD1n/PeLjyjkmRpowbuqHJj/giphy.gif")
+        return embed
+
+    @staticmethod
+    def wait_result_versus_embed():
+        embed = Embed(title=f"wait")
+        embed.set_image("https://media.giphy.com/media/mMDEmlkm6XQKv0zgjG/giphy-downsized-large.gif")
+
         return embed
 
 
