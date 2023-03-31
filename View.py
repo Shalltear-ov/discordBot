@@ -7,6 +7,25 @@ SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
 
 
+class Git_away(View):
+    def __init__(self):
+        super().__init__(timeout=5)
+        btn = Button(style=ButtonStyle.green, label=f"Получить 100 монет", row=1, custom_id='None')
+        btn.callback = self.click
+        self.add_item(btn)
+
+    async def click(self, inter: disnake.MessageInteraction):
+        self.stop()
+        self.clear_items()
+        embed = EMBED.win_git_embed(inter.author)
+        await inter.response.edit_message(embed=embed, view=self)
+        User(inter.author.id).add_money(100)
+
+    async def close(self):
+        for item in self.children:
+            item.disabled = True
+        return self
+
 class SHOP(View):
     def __init__(self, author):
         super().__init__(timeout=10)
