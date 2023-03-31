@@ -9,7 +9,8 @@ client = commands.Bot(command_prefix='!', intents=disnake.Intents.all())
 client.remove_command('help')
 cogs_list = []
 
-""""""
+
+
 @client.slash_command(name='load', description='load cogs')
 @commands.has_permissions(administrator=True)
 async def load(ctx: disnake.ApplicationCommandInteraction, extension):
