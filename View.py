@@ -96,15 +96,73 @@ class SHOP(View):
 
 
 class ProfileView(View):
-    def __init__(self, author):
+    def __init__(self, author, is_author):
         super().__init__(timeout=30)
+        self.is_author = is_author
         self.author = author
+        # self.dont_stop = False
 
-    @button(label="Edit bio.", style=disnake.ButtonStyle.blurple)
-    async def edit(self, hui, interaction: disnake.Interaction):
+    async def open_profile(self):
+        self.clear_items()
+        sot_set = Button(label="Соц сети", style=disnake.ButtonStyle.blurple)
+        sot_set.callback = self.open_social_network
+        self.add_item(sot_set)
+        if self.is_author:
+            status = Button(label="edit status", style=disnake.ButtonStyle.blurple)
+            status.callback = self.edit_status
+            self.add_item(status)
+
+    async def bck_profile(self, interaction: disnake.Interaction):
+        if self.author != interaction.author:
+            return
+        self.clear_items()
+        await self.open_profile()
+        embed = EMBED.profile_embed(interaction.author)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def edit_status(self, interaction: disnake.Interaction):
         if self.author != interaction.author:
             return
         coins_count = TextInput(label="About me", placeholder="Write something about yourself.",
                                 custom_id="desc", style=disnake.TextInputStyle.short, max_length=140)
         await interaction.response.send_modal(
             modal=Modal(title="Let's change it.", components=coins_count, custom_id='edit_desc'))
+
+    async def open_social_network(self, interaction: disnake.Interaction):
+        if self.author != interaction.author:
+            return
+        self.clear_items()
+        embed, result = EMBED.social_network_embed(*User(interaction.author.id).get_social(), interaction.author)
+        for soc, url in result.items():
+            btn = Button(label=soc, style=disnake.ButtonStyle.url, row=1, url=url)
+            self.add_item(btn)
+        if self.is_author:
+            edit_social = Button(label="Изменить соц сети", style=disnake.ButtonStyle.blurple, row=2)
+            edit_social.callback = self.edit_social_modal
+            self.add_item(edit_social)
+        back = Button(label="Назад", style=disnake.ButtonStyle.blurple, row=2)
+        back.callback = self.bck_profile
+        self.add_item(back)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def edit_social_modal(self, interaction: disnake.Interaction):
+        if self.author != interaction.author:
+            return
+        vk, instagram, telegram = User(interaction.author.id).get_social()
+        vk_t = TextInput(label="ПРОФИЛЬ ВКОНТАКТЕ", placeholder="VK",
+                         custom_id="vk", style=disnake.TextInputStyle.short, max_length=50, min_length=15, value=vk)
+        inst_t = TextInput(label="ПРОФИЛЬ INSTAGRAM", placeholder="VK",
+                           custom_id="inst", style=disnake.TextInputStyle.short, max_length=50, min_length=22,
+                           value=instagram)
+        tele_t = TextInput(label="АКАУНТ TELEGRAM", placeholder="VK",
+                           custom_id="tele", style=disnake.TextInputStyle.short, max_length=50, min_length=13,
+                           value=telegram)
+        components = [vk_t, inst_t, tele_t]
+        # self.dont_stop = True
+        await interaction.response.send_modal(
+            modal=Modal(title="Let's change it.", components=components, custom_id='social'))
+
+    async def close(self):
+        for item in self.children:
+            item.disabled = True
+        return self
