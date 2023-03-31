@@ -48,19 +48,34 @@ class Member(commands.Cog):
     @commands.slash_command(name="profile", description="Let you see an information about specific user.",
                             guild_ids=[SETTING['GUILD_ID']])
     async def profile(self, ctx, member: Optional[disnake.Member] = None):
-        view = ProfileView(ctx.author)
+        view = ProfileView(ctx.author, member is None)
+        await view.open_profile()
         if member is None:
             await ctx.send(embed=EMBED.profile_embed(ctx.author), view=view)
         else:
             await ctx.send(embed=EMBED.profile_embed(member), view=view)
+        await view.wait()
+        await view.close()
+        await ctx.edit_original_message(view=view)
 
     @commands.Cog.listener("on_modal_submit")
-    async def modal_admin(self, modal: disnake.ModalInteraction):
+    async def modal_status_edit(self, modal: disnake.ModalInteraction):
         values = modal.text_values
         if modal.custom_id == "edit_desc":
             user = User(modal.author.id)
             user.edit_desc(values['desc'])
-            await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=ProfileView(modal.author))
+            view = ProfileView(modal.author, True)
+            await view.open_profile()
+            await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=view)
+        if modal.custom_id == "social":
+            vk, instagram, telegram = values.values()
+            vk = vk if vk.startswith("https://vk.com/") else "https://vk.com/"
+            instagram = instagram if instagram.startswith("https://instagram.com/") else "https://instagram.com/"
+            telegram = telegram if telegram.startswith("https://t.me/") else "https://t.me/"
+            User(modal.author.id).edit_social(vk, instagram, telegram)
+            view = ProfileView(modal.author, True)
+            await view.open_profile()
+            await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=view)
 
 
 def setup(bot):
