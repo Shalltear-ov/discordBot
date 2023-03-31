@@ -2,18 +2,45 @@ import disnake
 from disnake.ui import View, Button, Modal, TextInput
 from disnake import ButtonStyle
 from Userform import SHOP_ROLE, Select, EMBED_CLASS, User
-
+import asyncio
+from random import randint
 SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
 
 
 class VersusGame(View):
-    def __init__(self):
+    def __init__(self, author):
         super().__init__(timeout=30)
+        self.author = author
+
+    async def open_versus(self):
         accept_btn = Button(style=ButtonStyle.green, label="Accept", custom_id="accept_fight")
+        accept_btn.callback = self.accept
         deny_btn = Button(style=ButtonStyle.red, label="Deny", custom_id="deny_fight")
+        deny_btn.callback = self.delete
         self.add_item(accept_btn)
         self.add_item(deny_btn)
+        return self
+
+    async def accept(self, inter: disnake.MessageInteraction):
+        # if inter.author == self.author:
+        #     return
+        embed = EMBED.wait_result_versus_embed()
+        self.stop()
+        await inter.response.edit_message(embed=embed, view=None)
+        await asyncio.sleep(4.2)
+        winner = [self.author, inter.author][randint(0, 1)]
+        await inter.edit_original_message(f"Победитель {winner.mention}", embed=None, view=None)
+
+    async def delete(self, inter: disnake.MessageInteraction):
+        if inter.author != self.author:
+            return
+        self.stop()
+        embed = EMBED.wait_result_versus_embed()
+        await inter.message.delete()
+        # print(help(inter))
+        # self.stop()
+        # await inter.response.edit_message("fff")
 
 
 class Git_away(View):
