@@ -2,8 +2,11 @@ import disnake
 from disnake.ui import View, Button, Modal, TextInput
 from disnake import ButtonStyle
 from Userform import SHOP_ROLE, Select, EMBED_CLASS, User
+from config import SETTING
 import asyncio
-from random import randint
+import requests
+import random
+
 SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
 
@@ -41,6 +44,23 @@ class VersusGame(View):
         # print(help(inter))
         # self.stop()
         # await inter.response.edit_message("fff")
+
+    @staticmethod
+    def get_giphy_gif(item_key):
+        api_endpoint = "http://api.giphy.com/v1/gifs/search"
+
+        api_key = SETTING['giphy_api_token']
+
+        params = {
+            "api_key": api_key,
+            "q": item_key,
+            "limit": 10,  # Maximum number of results to return
+        }
+        response = requests.get(api_endpoint, params=params)
+        gifs = response.json()["data"]
+        random_gif = random.choice(gifs)
+        gif_url = random_gif["images"]["original"]["url"]
+        return gif_url
 
 
 class Git_away(View):
