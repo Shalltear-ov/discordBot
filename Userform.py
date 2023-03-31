@@ -6,6 +6,7 @@ from typing import Optional
 import disnake
 from disnake import Embed, Colour, SelectOption
 from disnake.ui import StringSelect
+
 DATA_USER = 'USER.db'
 DATA_USER_PROFILE = 'PROFILE'
 DATA_USER_SOCIAL = "SOCIAL"
@@ -13,9 +14,6 @@ DATA_USER_SHOP = 'SHOP'
 BAN_USERS = 'BAN'
 COLOR_EMBED = (43, 45, 49)
 FORMAT_DATE = "%d.%m.%Y %H:%M"
-SETTING = {'token': '',
-           'FORMAT_DATE': "%d.%m.%Y %H:%M", "GUILD_ID": 972208613663854593,
-           'ban': 972485080431886437, 'channel': 972208614251053088}
 
 
 class User:
@@ -207,14 +205,13 @@ class SHOP_ROLE:
             return False
 
 
-
 class EMBED_CLASS:
     @staticmethod
     def get_error_embed(err):
         embed = Embed(
-                    title="Ошибка",
-                    color=Colour.from_rgb(*COLOR_EMBED)
-                )
+            title="Ошибка",
+            color=Colour.from_rgb(*COLOR_EMBED)
+        )
         err = str(f"""```diff\n-{err}```""")
         embed.add_field(name="Тип ошибки", value=err, inline=False)
         embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/972208614251053087/1085942522083291237/png'
@@ -234,19 +231,19 @@ class EMBED_CLASS:
     @staticmethod
     def add_money_embed(count):
         embed = Embed(
-                    title="Пополнение",
-                    color=Colour.from_rgb(*COLOR_EMBED),
-                    description=f"Количество:\n```{count}```"
-                )
+            title="Пополнение",
+            color=Colour.from_rgb(*COLOR_EMBED),
+            description=f"Количество:\n```{count}```"
+        )
         embed.set_thumbnail(url='https://cdn.discordapp.com/emojis/1085923871238135911.gif?size=128&quality=lossless')
         return embed
 
     @staticmethod
     def ban_user_embed(reason, moder, end):
         embed = Embed(
-                        title="БАН",
-                        color=Colour.from_rgb(*COLOR_EMBED)
-                    )
+            title="БАН",
+            color=Colour.from_rgb(*COLOR_EMBED)
+        )
         embed.add_field(name='Причина', value=f"```{reason}```")
         embed.add_field(name='Дата оканчания', value=f"```{end}```")
         embed.set_author(
@@ -317,7 +314,6 @@ class EMBED_CLASS:
         else:
             embed.add_field(name='Telegram', value="```Не установлен```")
         return embed, result
-
 
     @staticmethod
     def win_git_embed(member):

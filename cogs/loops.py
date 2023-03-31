@@ -1,9 +1,10 @@
 from disnake.ext import commands, tasks
 import time
-from Userform import User, EMBED_CLASS, SETTING
+from Userform import User, EMBED_CLASS
 import disnake
 from random import choice
 from View import Git_away
+from config import SETTING
 
 
 class Loops(commands.Cog):

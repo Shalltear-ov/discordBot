@@ -1,10 +1,11 @@
 import disnake.ext.commands.errors
 from disnake.ext import commands
 import time
-from Userform import User, EMBED_CLASS, SETTING
+from Userform import User, EMBED_CLASS
 import asyncio
 from datetime import datetime
-ID_ROLE_JOIN = 1085988777077522534
+from config import SETTING
+
 EMBED = EMBED_CLASS()
 TDICT = {}
 
@@ -62,7 +63,7 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         # role = discord.utils.get(member.guild.roles, id=ID_ROLE)
-        role = member.guild.get_role(ID_ROLE_JOIN)
+        role = member.guild.get_role(SETTING['ID_ROLE_JOIN'])
         User(member.id)
         await member.add_roles(role)
 

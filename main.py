@@ -1,6 +1,6 @@
 import disnake
 
-from Userform import SETTING
+from config import SETTING
 from disnake.ext import commands
 import os
 from typing import Optional
@@ -8,7 +8,6 @@ from typing import Optional
 client = commands.Bot(command_prefix='!', intents=disnake.Intents.all())
 client.remove_command('help')
 cogs_list = []
-
 
 
 @client.slash_command(name='load', description='load cogs')
@@ -52,6 +51,7 @@ async def load(ctx: disnake.ApplicationCommandInteraction, extension):
 async def autocomplete(self, string: str):
     string = string.lower()
     return [cog for cog in cogs_list if string in cog.lower()]
+
 
 @client.slash_command(name='reload_all', description='reload cogs')
 @commands.has_permissions(administrator=True)

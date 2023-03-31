@@ -26,6 +26,7 @@ class Git_away(View):
             item.disabled = True
         return self
 
+
 class SHOP(View):
     def __init__(self, author):
         super().__init__(timeout=10)

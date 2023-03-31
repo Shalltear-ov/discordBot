@@ -5,7 +5,8 @@ import disnake
 import asyncio
 from disnake.ui import View, Button, UserSelect, Modal, TextInput
 from disnake import ButtonStyle, TextInputStyle
-from Userform import User, EMBED_CLASS, SETTING, SHOP_ROLE
+from Userform import User, EMBED_CLASS, SHOP_ROLE
+from config import SETTING
 
 EMBED = EMBED_CLASS()
 

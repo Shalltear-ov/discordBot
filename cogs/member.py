@@ -4,9 +4,9 @@ import disnake
 import asyncio
 from disnake import ButtonStyle, Emoji
 from disnake.ui import Button
-from Userform import User, EMBED_CLASS, SHOP_ROLE, Select, SETTING
+from Userform import User, EMBED_CLASS, SHOP_ROLE, Select
 from View import SHOP as SHOP_VIEW, ProfileView
-GUILD_ID = 972208613663854593
+from config import SETTING
 EMBED = EMBED_CLASS()
 SHOP = SHOP_ROLE()
 EMOJI_SORT = None
@@ -21,7 +21,7 @@ class Member(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-    @commands.slash_command(name='balance', description='get your balance', guild_ids=[GUILD_ID])
+    @commands.slash_command(name='balance', description='get your balance', guild_ids=[SETTING['GUILD_ID']])
     async def balance(self, ctx, name: Optional[disnake.Member] = None):
         # await ctx.send(" dfd")
         if name is None:
@@ -36,7 +36,7 @@ class Member(commands.Cog):
         embed = EMBED.get_balance_embed(username, image, user.balance)
         await ctx.response.send_message(embed=embed)
 
-    @commands.slash_command(name='shop', description='role shop', guild_ids=[GUILD_ID])
+    @commands.slash_command(name='shop', description='role shop', guild_ids=[SETTING['GUILD_ID']])
     async def shop(self, ctx: disnake.MessageCommandInteraction):
         view = SHOP_VIEW(ctx.author)
         embed = await view.shop_open(0)
