@@ -1,10 +1,19 @@
 import disnake
-from disnake.ui import View, Button, button, StringSelect, Modal, TextInput
+from disnake.ui import View, Button, Modal, TextInput
 from disnake import ButtonStyle
 from Userform import SHOP_ROLE, Select, EMBED_CLASS, User
 
 SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
+
+
+class VersusGame(View):
+    def __init__(self):
+        super().__init__(timeout=30)
+        accept_btn = Button(style=ButtonStyle.green, label="Accept", custom_id="accept_fight")
+        deny_btn = Button(style=ButtonStyle.red, label="Deny", custom_id="deny_fight")
+        self.add_item(accept_btn)
+        self.add_item(deny_btn)
 
 
 class Git_away(View):

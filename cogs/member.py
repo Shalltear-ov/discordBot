@@ -5,7 +5,7 @@ import asyncio
 from disnake import ButtonStyle, Emoji
 from disnake.ui import Button
 from Userform import User, EMBED_CLASS, SHOP_ROLE, Select
-from View import SHOP as SHOP_VIEW, ProfileView
+from View import SHOP as SHOP_VIEW, ProfileView, VersusGame
 from config import SETTING
 EMBED = EMBED_CLASS()
 SHOP = SHOP_ROLE()
@@ -80,11 +80,20 @@ class Member(commands.Cog):
     @commands.slash_command(name="test", description="Let you see an information about specific user.",
                             guild_ids=[SETTING['GUILD_ID']])
     async def test(self, ctx: disnake.MessageCommandInteraction):
-        await ctx.send("start")
-        for i in range(5):
-            await ctx.edit_original_message(f"{5 - i}")
-            await asyncio.sleep(0.01)
-        await ctx.delete_original_message()
+        await ctx.send(embed=EMBED.versus_embed(ctx.author), view=VersusGame())
+        # for i in range(5):
+        #     await ctx.edit_original_message(f"{5 - i}", embed=EMBED.versus_embed(ctx.author))
+        #     await asyncio.sleep(0.01)
+        # await ctx.edit_original_message("end")
+
+    @commands.Cog.listener("on_button_click")
+    async def button_fight_decision(self, inter: disnake.MessageInteraction):
+        if inter.component.custom_id == "accept_fight":
+            print("gotcha acc")
+            await inter.response.edit_message(view=VersusGame())
+        elif inter.component.custom_id == "deny_fight":
+            print("gotcha deny")
+            await inter.response.edit_message(view=VersusGame())
 
 
 def setup(bot):

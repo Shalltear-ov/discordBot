@@ -322,6 +322,13 @@ class EMBED_CLASS:
 
         return embed
 
+    @staticmethod
+    def versus_embed(first_member):
+        embed = Embed(title="So what u gonna do, boi?")
+        embed.set_author(name=f"{first_member} invited you to a roll fight.", icon_url=f"{first_member.avatar}")
+        embed.set_image("https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDVhNTMyNmFkMmUyNDc5NDEzZDY5NDYxMGU1OWY0N2FmNTU0NTJiMCZjdD1n/PeLjyjkmRpowbuqHJj/giphy.gif")
+        return embed
+
 
 class Select:
     @staticmethod
