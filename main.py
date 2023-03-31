@@ -52,7 +52,6 @@ async def autocomplete(self, string: str):
     string = string.lower()
     return [cog for cog in cogs_list if string in cog.lower()]
 
-
 @client.slash_command(name='reload_all', description='reload cogs')
 @commands.has_permissions(administrator=True)
 async def load_all(ctx: disnake.ApplicationCommandInteraction):
