@@ -1,30 +1,27 @@
 from disnake.ext import commands, tasks
 import time
 from Userform import User, EMBED_CLASS, SETTING
+import disnake
+from random import choice
+from View import Git_away
 
 
 class Loops(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.check_ban.start()
 
     @tasks.loop(seconds=5)
-    async def check_ban(self):
-        guild = self.bot.get_guild(SETTING['GUILD_ID'])
-        if guild is not None:
-            channel = guild.get_channel(972208614251053088)
-            for member in guild.members:
-                ban_key = member.get_role(972485080431886437)
-                if ban_key is None:
-                    continue
-                user = User(member.id)
-                bans = user.check_bans()
-                if 'ban' not in bans:
-                    # if ban_key in member.roles:
-                    await member.remove_roles(ban_key)
-                    await channel.send(f"{member.mention} разбанен причина: истекло время")
+    async def git_away(self):
+        channels = self.bot.get_guild(SETTING['GUILD_ID']).text_channels
+        channel: disnake.TextChannel = choice(channels)
+        view = Git_away()
+        disnake.message.Message = await channel.send(view=view, delete_after=5)
+
+    @commands.slash_command(name='git_away', description='get your balance', guild_ids=[SETTING['GUILD_ID']])
+    async def start(self, ctx):
+        self.git_away.start()
+        await ctx.send("started git_away")
 
 
 def setup(bot):
-    pass
-    # bot.add_cog(Loops(bot))
+    bot.add_cog(Loops(bot))
