@@ -11,7 +11,7 @@ class Loops(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=3000)
     async def git_away(self):
         channels = self.bot.get_guild(SETTING['GUILD_ID']).text_channels
         channel: disnake.TextChannel = choice(channels)
