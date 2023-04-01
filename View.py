@@ -7,7 +7,7 @@ import asyncio
 import requests
 import random
 from random import randint
-
+from functools import partial
 SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
 
@@ -118,7 +118,7 @@ class SHOP(View):
         if key:
             role = inter.guild.get_role(int(role_id))
             if role is not None:
-                await inter.author.add_roles(role)
+                User(inter.author.id).add_item('role', int(role_id))
                 await inter.response.edit_message("ty", embed=None, view=self)
         else:
             await inter.response.edit_message("Не хватает монет", embed=None, view=self)
@@ -205,9 +205,90 @@ class ProfileView(View):
         sot_set.callback = self.open_social_network
         self.add_item(sot_set)
         if self.is_author:
+            invent = Button(label="Инвентарь", style=disnake.ButtonStyle.blurple, custom_id='0')
+            invent.callback = self.next_page
+            self.add_item(invent)
             status = Button(label="edit status", style=disnake.ButtonStyle.blurple)
             status.callback = self.edit_status
             self.add_item(status)
+
+    async def invent_open(self, start=0):
+        self.clear_items()
+        user = User(self.author.id)
+        ln = user.len_invents()
+        if abs(start) >= ln:
+            start = 0
+        if start < 0:
+            start = ln - (ln + start)
+        items = tuple(user.get_items(start))
+        embed = EMBED.get_invent_embed(items, self.author)
+        for num, item in items:
+            type_, value = item
+            btn = Button(style=ButtonStyle.green, label=f"{num}", row=1)
+            btn.callback = partial(self.open_item, type_, value)
+            self.add_item(btn)
+        prev = Button(style=ButtonStyle.green, label=f"Назад", custom_id=f'{start - 4}', row=2)
+        next_ = Button(style=ButtonStyle.green, label=f"Вперед", custom_id=f'{start + 4}', row=2)
+        prev.callback = self.next_page
+        next_.callback = self.next_page
+        self.add_item(prev)
+        self.add_item(next_)
+        prof = Button(label="К профилю", style=disnake.ButtonStyle.blurple, row=2)
+        prof.callback = self.bck_profile
+        self.add_item(prof)
+        return embed
+
+    async def activate_role(self, type_, value, interaction: disnake.MessageInteraction):
+        if self.author != interaction.author:
+            return
+        value = int(value[3:-1])
+        key = User(interaction.author.id).del_item(type_, value)
+        if key is not None:
+            role = interaction.guild.get_role(value)
+            if role is not None:
+                await interaction.author.add_roles(role, reason='Ban')
+        embed = await self.invent_open(0)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def delete_item(self, type_, value, interaction: disnake.MessageInteraction):
+        if self.author != interaction.author:
+            return
+        if type_ == 'role':
+            value = int(value[3:-1])
+        User(interaction.author.id).del_item(type_, value)
+        embed = await self.invent_open(0)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def open_item(self, type_, value, interaction: disnake.MessageInteraction):
+        if self.author != interaction.author:
+            return
+        self.clear_items()
+        embed = EMBED.get_item_embed(type_, value)
+        if type_ == 'role':
+            activate = Button(style=ButtonStyle.green, label="Активировать", row=1)
+            activate.callback = partial(self.activate_role, type_, value)
+            self.add_item(activate)
+        delete = Button(style=ButtonStyle.red, label="Удалить", row=1)
+        delete.callback = partial(self.delete_item, type_, value)
+        self.add_item(delete)
+        back = Button(style=ButtonStyle.blurple, label="Назад", row=1)
+        back.callback = self.back_invent
+        self.add_item(back)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def back_invent(self, interaction: disnake.Interaction):
+        if self.author != interaction.author:
+            return
+        self.clear_items()
+        embed = await self.invent_open(0)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def next_page(self, interaction: disnake.MessageInteraction):
+        if self.author != interaction.author:
+            return
+        start = int(interaction.component.custom_id)
+        embed = await self.invent_open(start)
+        await interaction.response.edit_message(embed=embed, view=self)
 
     async def bck_profile(self, interaction: disnake.Interaction):
         if self.author != interaction.author:
