@@ -4,6 +4,7 @@ import disnake
 import asyncio
 from disnake import ButtonStyle, Emoji
 from disnake.ui import Button
+
 from Userform import User, EMBED_CLASS, SHOP_ROLE, Select
 from View import SHOP as SHOP_VIEW, ProfileView, VersusGame
 from config import SETTING
@@ -80,19 +81,26 @@ class Member(commands.Cog):
 
     @commands.slash_command(name="versus", description="Let you play with specific user for any bet.",
                             guild_ids=[SETTING['GUILD_ID']])
-    async def versus(self, ctx: disnake.MessageCommandInteraction, member: disnake.Member, bet: Optional[int]):
+    async def versus(self, ctx: disnake.MessageCommandInteraction, bet: Optional[int], member: Optional[disnake.Member] = None):
         if User(ctx.author.id).balance < abs(bet):
             await ctx.response.send_message(content="Not enough coins on balance.", ephemeral=True)
             return
-        elif User(member.id).balance < abs(bet):
-            await ctx.response.send_message(content="This user didn't have this amount of coins on balance.", ephemeral=True)
-            return
+        if member is not None:
+            if User(member.id).balance < abs(bet):
+                await ctx.response.send_message(content="This user didn't have this amount of coins on balance.", ephemeral=True)
+                return
         elif ctx.author == member:
             await ctx.response.send_message(content="No, ")
+            return
         view = VersusGame(ctx.author, member, bet)
         await view.open_versus()
-        await ctx.response.send_message(content=f"{member.mention}", embed=EMBED.versus_embed(ctx.author, bet, view.get_giphy_gif("versus fight")), view=view)
+        if member is not None:
+            await ctx.response.send_message(content=f"{member.mention}", embed=EMBED.versus_embed(ctx.author, bet, view.get_giphy_gif("versus fight")), view=view)
+        else:
+            await ctx.response.send_message(embed=EMBED.versus_embed(ctx.author, bet, view.get_giphy_gif("versus fight")), view=view)
         await view.wait()
+        await view.close()
+        await ctx.edit_original_message(view=view)
 
 
 def setup(bot):
