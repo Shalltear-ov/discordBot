@@ -30,6 +30,7 @@ class VersusGame(View):
 
     async def accept(self, inter: disnake.MessageInteraction):
         if inter.author != self.member:
+            await inter.send(embed=EMBED.error_permission_interaction(inter.author), ephemeral=True)
             return
         embed = EMBED.wait_result_versus_embed(VersusGame.get_giphy_gif("count to 5"))
         self.stop()

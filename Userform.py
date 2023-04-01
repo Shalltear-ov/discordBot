@@ -345,6 +345,13 @@ class EMBED_CLASS:
 
         return embed
 
+    @staticmethod
+    def error_permission_interaction(member):
+        now = datetime.now()
+        embed = Embed(title=f":x: Sorry, {member} but you can't use this.")
+        embed.add_field(name="Wrong permissions", value="**This interaction belongs to another user.**")
+        embed.add_field(name="", value=f"{now.strftime(FORMAT_DATE)}", inline=False)
+        return embed
 
 class Select:
     @staticmethod

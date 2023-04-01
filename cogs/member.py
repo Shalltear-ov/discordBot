@@ -82,11 +82,13 @@ class Member(commands.Cog):
                             guild_ids=[SETTING['GUILD_ID']])
     async def versus(self, ctx: disnake.MessageCommandInteraction, member: disnake.Member, bet: Optional[int]):
         if User(ctx.author.id).balance < abs(bet):
-            await ctx.response.send_message(content=f"Not enough coins on balance.", ephemeral=True)
+            await ctx.response.send_message(content="Not enough coins on balance.", ephemeral=True)
             return
         elif User(member.id).balance < abs(bet):
-            await ctx.response.send_message(content=f"This user didn't have this amount of coins on balance.", ephemeral=True)
+            await ctx.response.send_message(content="This user didn't have this amount of coins on balance.", ephemeral=True)
             return
+        elif ctx.author == member:
+            await ctx.response.send_message(content="No, ")
         view = VersusGame(ctx.author, member, bet)
         await view.open_versus()
         await ctx.response.send_message(content=f"{member.mention}", embed=EMBED.versus_embed(ctx.author, bet, view.get_giphy_gif("versus fight")), view=view)
