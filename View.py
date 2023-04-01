@@ -33,10 +33,14 @@ class VersusGame(View):
             return
         if inter.author == self.author:
             return
+        if User(inter.author.id).balance < abs(self.bet):
+            await inter.response.send_message(content="This user didn't have this amount of coins on balance.",
+                                            ephemeral=True)
+            return
+        self.stop()
         self.clear_items()
         self.member = inter.author
         embed = EMBED.wait_result_versus_embed("https://media2.giphy.com/media/mMDEmlkm6XQKv0zgjG/giphy.gif?cid=ecf05e4754gmv06hxarhkbz152jf8p6xto4eif1gb0p7zc83&rid=giphy.gif")
-        self.stop()
         await inter.response.edit_message(embed=embed, view=self)
         await asyncio.sleep(4.05)
         winner = [self.author, self.member][randint(0, 1)]
