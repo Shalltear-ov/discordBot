@@ -13,9 +13,11 @@ EMBED = EMBED_CLASS()
 
 
 class VersusGame(View):
-    def __init__(self, author):
+    def __init__(self, author, member, bet):
         super().__init__(timeout=30)
         self.author = author
+        self.member = member
+        self.bet = bet
 
     async def open_versus(self):
         accept_btn = Button(style=ButtonStyle.green, label="Accept", custom_id="accept_fight")
@@ -27,13 +29,18 @@ class VersusGame(View):
         return self
 
     async def accept(self, inter: disnake.MessageInteraction):
-        # if inter.author == self.author:
-        #     return
+        if inter.author != self.member:
+            return
         embed = EMBED.wait_result_versus_embed(VersusGame.get_giphy_gif("count to 5"))
         self.stop()
         await inter.response.edit_message(embed=embed, view=None)
         await asyncio.sleep(4.2)
-        winner = [self.author, inter.author][randint(0, 1)]
+        winner = [self.author, self.member][randint(0, 1)]
+        if winner.id == self.author.id:
+            User(self.member.id).remove_money(self.bet)
+        else:
+            User(self.author.id).remove_money(self.bet)
+        User(winner.id).add_money(self.bet)
         await inter.edit_original_message(f"Победитель {winner.mention}", embed=None, view=None)
 
     async def delete(self, inter: disnake.MessageInteraction):

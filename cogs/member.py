@@ -78,27 +78,19 @@ class Member(commands.Cog):
             await view.open_profile()
             await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=view)
 
-    @commands.slash_command(name="test", description="Let you see an information about specific user.",
+    @commands.slash_command(name="versus", description="Let you play with specific user for any bet.",
                             guild_ids=[SETTING['GUILD_ID']])
-    async def test(self, ctx: disnake.MessageCommandInteraction, cost: Optional[int]):
-        view = VersusGame(ctx.author)
+    async def versus(self, ctx: disnake.MessageCommandInteraction, member: disnake.Member, bet: Optional[int]):
+        if User(ctx.author.id).balance < abs(bet):
+            await ctx.response.send_message(content=f"Not enough coins on balance.", ephemeral=True)
+            return
+        elif User(member.id).balance < abs(bet):
+            await ctx.response.send_message(content=f"This user didn't have this amount of coins on balance.", ephemeral=True)
+            return
+        view = VersusGame(ctx.author, member, bet)
         await view.open_versus()
-        await ctx.response.send_message(embed=EMBED.versus_embed(ctx.author, cost, view.get_giphy_gif("versus fight")), view=view)
+        await ctx.response.send_message(content=f"{member.mention}", embed=EMBED.versus_embed(ctx.author, bet, view.get_giphy_gif("versus fight")), view=view)
         await view.wait()
-
-        # for i in range(5):
-        #     await ctx.edit_original_message(f"{5 - i}", embed=EMBED.versus_embed(ctx.author))
-        #     await asyncio.sleep(0.01)
-        # await ctx.edit_original_message("end")
-
-    # @commands.Cog.listener("on_button_click")
-    # async def button_fight_decision(self, inter: disnake.MessageInteraction):
-    #     if inter.component.custom_id == "accept_fight":
-    #         print("gotcha acc")
-    #         await inter.response.edit_message(view=VersusGame())
-    #     elif inter.component.custom_id == "deny_fight":
-    #         print("gotcha deny")
-    #         await inter.response.edit_message(view=VersusGame())
 
 
 def setup(bot):

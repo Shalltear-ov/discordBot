@@ -53,6 +53,15 @@ class User:
         self.connect.commit()
         self.balance += value
 
+    def remove_money(self, value: int):
+        if self.balance - value >= 0:
+            self.cursor.execute(f"UPDATE {DATA_USER_PROFILE} SET balance = (?) WHERE user_id = (?)",
+                                [self.balance - value, self.user_id])
+            self.connect.commit()
+            self.balance -= value
+        else:
+            self.reset_money()
+
     def reset_money(self):
         self.cursor.execute(f"UPDATE {DATA_USER_PROFILE} SET balance = (?) WHERE user_id = (?)",
                             [0, self.user_id])
