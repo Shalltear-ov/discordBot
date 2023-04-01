@@ -14,7 +14,7 @@ EMBED = EMBED_CLASS()
 
 class VersusGame(View):
     def __init__(self, author, member, bet):
-        super().__init__(timeout=30)
+        super().__init__(timeout=10)
         self.author = author
         self.member = member
         self.bet = bet
@@ -29,13 +29,16 @@ class VersusGame(View):
         return self
 
     async def accept(self, inter: disnake.MessageInteraction):
-        if inter.author != self.member:
-            await inter.send(embed=EMBED.error_permission_interaction(inter.author), ephemeral=True)
+        if inter.author != self.member and self.member is not None:
             return
-        embed = EMBED.wait_result_versus_embed(VersusGame.get_giphy_gif("count to 5"))
+        if inter.author == self.author:
+            return
+        self.clear_items()
+        self.member = inter.author
+        embed = EMBED.wait_result_versus_embed("https://media2.giphy.com/media/mMDEmlkm6XQKv0zgjG/giphy.gif?cid=ecf05e4754gmv06hxarhkbz152jf8p6xto4eif1gb0p7zc83&rid=giphy.gif")
         self.stop()
-        await inter.response.edit_message(embed=embed, view=None)
-        await asyncio.sleep(4.2)
+        await inter.response.edit_message(embed=embed, view=self)
+        await asyncio.sleep(4.05)
         winner = [self.author, self.member][randint(0, 1)]
         if winner.id == self.author.id:
             User(self.member.id).remove_money(self.bet)
@@ -53,6 +56,11 @@ class VersusGame(View):
         # print(help(inter))
         # self.stop()
         # await inter.response.edit_message("fff")
+
+    async def close(self):
+        for item in self.children:
+            item.disabled = True
+        return self
 
     @staticmethod
     def get_giphy_gif(item_key):
