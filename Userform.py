@@ -11,6 +11,7 @@ DATA_USER = 'USER.db'
 DATA_USER_PROFILE = 'PROFILE'
 DATA_USER_SOCIAL = "SOCIAL"
 DATA_USER_SHOP = 'SHOP'
+DATA_USER_INVENT = "INVENT"
 BAN_USERS = 'BAN'
 COLOR_EMBED = (43, 45, 49)
 FORMAT_DATE = "%d.%m.%Y %H:%M"
@@ -45,6 +46,8 @@ class User:
         self.cursor.execute(f"CREATE TABLE IF NOT EXISTS {DATA_USER_SOCIAL}("
                             f"user_id INTEGER, Vk TEXT DEFAULT 'https://vk.com/', Instagram TEXT DEFAULT "
                             f"'https://instagram.com/', Telegram TEXT DEFAULT 'https://t.me/')")
+        self.cursor.execute(f"CREATE TABLE IF NOT EXISTS {DATA_USER_INVENT}("
+                            f"user_id INTEGER, type TEXT, value TEXT, date INTEGER PRIMARY KEY)")
         self.connect.commit()
 
     def add_money(self, value: int):
@@ -171,6 +174,34 @@ class User:
                             [vk, instagram, telegram, self.user_id])
         self.connect.commit()
 
+    def add_item(self, type_, value):
+        if type_ == 'role':
+            value = f"<@&{value}>"
+        self.cursor.execute(f"INSERT INTO {DATA_USER_INVENT} (user_id, type, value) VALUES(?, ?, ?)",
+                            [self.user_id, type_, value])
+        self.connect.commit()
+
+    def get_items(self, start):
+        self.cursor.execute(f"SELECT type, value FROM {DATA_USER_INVENT} WHERE user_id = {self.user_id} ORDER BY date DESC "
+                            f"LIMIT 4 OFFSET {start}")
+        return enumerate(self.cursor.fetchall(), start=start + 1)
+
+    def del_item(self, type_, value):
+        if type_ == 'role':
+            value = f"<@&{value}>"
+        self.cursor.execute(f"DELETE FROM {DATA_USER_INVENT} WHERE date in (SELECT date FROM {DATA_USER_INVENT} "
+                            f"WHERE user_id = (?) AND value = (?) ORDER BY date DESC LIMIT 1) RETURNING date"
+                            , [self.user_id, value])
+        key = self.cursor.fetchone()
+        self.connect.commit()
+        return key
+
+    def len_invents(self):
+        self.cursor.execute(
+            f"SELECT COUNT(*) FROM {DATA_USER_INVENT} WHERE user_id = {self.user_id}")
+        ln = self.cursor.fetchone()[0]
+        return ln
+
 
 class SHOP_ROLE:
     def __init__(self):
@@ -274,6 +305,32 @@ class EMBED_CLASS:
             embed.add_field(name=f"**{num}**",
                             value=f"Роль <@&{role_id}>\n**Продавец:** <@{user_id}>\n"
                                   f"**Цена:** {cost}\n**Куплена раз:** {count}", inline=False)
+        return embed
+
+    @staticmethod
+    def get_invent_embed(items, author):
+        embed = Embed(
+            title=f"Инвентарь — {author}",
+            color=Colour.from_rgb(*COLOR_EMBED)
+        )
+        for num, item in items:
+            type_, value = item
+            embed.add_field(name=f"**слот: {num}**",
+                            value=f" **тип: **{type_}\n   **предмет: **{value}", inline=False)
+        if not items:
+            embed.add_field(name=f"**Пусто**",
+                            value=f"", inline=False)
+        embed.set_thumbnail(author.avatar)
+        return embed
+
+    @staticmethod
+    def get_item_embed(type_, value):
+        embed = Embed(
+            title=f"Предмет",
+            color=Colour.from_rgb(*COLOR_EMBED)
+        )
+        embed.add_field(name=f"**{type_}**",
+                        value=f"**{value}**", inline=False)
         return embed
 
     @staticmethod
