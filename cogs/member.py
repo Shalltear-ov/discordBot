@@ -83,7 +83,7 @@ class Member(commands.Cog):
     async def test(self, ctx: disnake.MessageCommandInteraction, cost: Optional[int]):
         view = VersusGame(ctx.author)
         await view.open_versus()
-        await ctx.response.send_message(embed=EMBED.versus_embed(ctx.author, cost, view.get_giphy_gif("versus")), view=view)
+        await ctx.response.send_message(embed=EMBED.versus_embed(ctx.author, cost, view.get_giphy_gif("versus fight")), view=view)
         await view.wait()
 
         # for i in range(5):

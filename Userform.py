@@ -330,9 +330,9 @@ class EMBED_CLASS:
         return embed
 
     @staticmethod
-    def wait_result_versus_embed():
+    def wait_result_versus_embed(gif):
         embed = Embed(title=f"wait")
-        embed.set_image("https://media.giphy.com/media/mMDEmlkm6XQKv0zgjG/giphy-downsized-large.gif")
+        embed.set_image(gif)
 
         return embed
 

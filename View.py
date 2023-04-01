@@ -6,6 +6,7 @@ from config import SETTING
 import asyncio
 import requests
 import random
+from random import randint
 
 SHOP_DATA = SHOP_ROLE()
 EMBED = EMBED_CLASS()
@@ -28,7 +29,7 @@ class VersusGame(View):
     async def accept(self, inter: disnake.MessageInteraction):
         # if inter.author == self.author:
         #     return
-        embed = EMBED.wait_result_versus_embed()
+        embed = EMBED.wait_result_versus_embed(VersusGame.get_giphy_gif("count to 5"))
         self.stop()
         await inter.response.edit_message(embed=embed, view=None)
         await asyncio.sleep(4.2)
@@ -39,7 +40,7 @@ class VersusGame(View):
         if inter.author != self.author:
             return
         self.stop()
-        embed = EMBED.wait_result_versus_embed()
+        embed = EMBED.wait_result_versus_embed(VersusGame.get_giphy_gif("count to 5"))
         await inter.message.delete()
         # print(help(inter))
         # self.stop()
