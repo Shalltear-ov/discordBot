@@ -7,6 +7,7 @@ from View import Git_away
 from config import SETTING
 from PIL import Image, ImageDraw, ImageFont
 
+
 async def draw_banner(num):
     img = Image.open("banner.jpg")
     draw = ImageDraw.Draw(img)
