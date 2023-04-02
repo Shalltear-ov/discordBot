@@ -50,7 +50,8 @@ class Member(commands.Cog):
     @commands.slash_command(name="profile", description="Let you see an information about specific user.",
                             guild_ids=[SETTING['GUILD_ID']])
     async def profile(self, ctx, member: Optional[disnake.Member] = None):
-        view = ProfileView(ctx.author, member is None)
+        user = member if member is not None else ctx.author
+        view = ProfileView(ctx.author, member is None, user)
         await view.open_profile()
         if member is None:
             await ctx.send(embed=EMBED.profile_embed(ctx.author), view=view)
@@ -66,7 +67,7 @@ class Member(commands.Cog):
         if modal.custom_id == "edit_desc":
             user = User(modal.author.id)
             user.edit_desc(values['desc'])
-            view = ProfileView(modal.author, True)
+            view = ProfileView(modal.author, True, modal.author)
             await view.open_profile()
             await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=view)
         if modal.custom_id == "social":
@@ -75,7 +76,7 @@ class Member(commands.Cog):
             instagram = instagram if instagram.startswith("https://instagram.com/") else "https://instagram.com/"
             telegram = telegram if telegram.startswith("https://t.me/") else "https://t.me/"
             User(modal.author.id).edit_social(vk, instagram, telegram)
-            view = ProfileView(modal.author, True)
+            view = ProfileView(modal.author, True, modal.author)
             await view.open_profile()
             await modal.response.edit_message(embed=EMBED.profile_embed(modal.author), view=view)
 
@@ -92,6 +93,7 @@ class Member(commands.Cog):
         elif ctx.author == member:
             await ctx.response.send_message(content="No, ")
             return
+        bet = abs(bet)
         view = VersusGame(ctx.author, member, bet)
         await view.open_versus()
         if member is not None:
