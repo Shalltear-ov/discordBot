@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import disnake
-from disnake import Embed, Colour, SelectOption
-from disnake.ui import StringSelect
+from disnake import Embed, Colour, SelectOption, UserSelectMenu
+from disnake.ui import StringSelect, UserSelect
 
 DATA_USER = 'USER.db'
 DATA_USER_PROFILE = 'PROFILE'
@@ -446,3 +446,7 @@ class Select:
         ]
 
         return StringSelect(options=options, custom_id='sort shop', row=2)
+
+    @staticmethod
+    def user_select():
+        return UserSelect()
