@@ -1,5 +1,4 @@
 import disnake
-
 from config import SETTING
 from disnake.ext import commands
 import os
