@@ -20,6 +20,7 @@ class VersusGame(View):
         self.bet = bet
 
     async def open_versus(self):
+        self.clear_items()
         accept_btn = Button(style=ButtonStyle.green, label="Accept", custom_id="accept_fight")
         accept_btn.callback = self.accept
         deny_btn = Button(style=ButtonStyle.red, label="Deny", custom_id="deny_fight")
@@ -193,10 +194,11 @@ class SHOP(View):
 
 
 class ProfileView(View):
-    def __init__(self, author, is_author):
+    def __init__(self, author, is_author, user):
         super().__init__(timeout=30)
         self.is_author = is_author
         self.author = author
+        self.user = user
         # self.dont_stop = False
 
     async def open_profile(self):
@@ -238,15 +240,36 @@ class ProfileView(View):
         self.add_item(prof)
         return embed
 
-    async def activate_role(self, type_, value, interaction: disnake.MessageInteraction):
+    async def activate_item(self, type_, value, interaction: disnake.MessageInteraction):
         if self.author != interaction.author:
             return
-        value = int(value[3:-1])
+        if type_ == 'role':
+            value = int(value[3:-1])
+            key = User(interaction.author.id).del_item(type_, value)
+            if key is not None:
+                role = interaction.guild.get_role(value)
+                if role is not None:
+                    await interaction.author.add_roles(role, reason='Ban')
+        embed = await self.invent_open(0)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def open_give(self, type_, value, interaction: disnake.MessageInteraction):
+        if self.author != interaction.author:
+            return
+        self.clear_items()
+        user_list = Select().user_select()
+        user_list.callback = partial(self.give, type_, value)
+        self.add_item(user_list)
+        await interaction.response.edit_message(embed=None, view=self)
+
+    async def give(self, type_, value, interaction: disnake.MessageInteraction):
+        if self.author != interaction.author:
+            return
+        if type_ == 'role':
+            value = int(value[3:-1])
         key = User(interaction.author.id).del_item(type_, value)
         if key is not None:
-            role = interaction.guild.get_role(value)
-            if role is not None:
-                await interaction.author.add_roles(role, reason='Ban')
+            User(int(interaction.values[0])).add_item(type_, value)
         embed = await self.invent_open(0)
         await interaction.response.edit_message(embed=embed, view=self)
 
@@ -264,10 +287,12 @@ class ProfileView(View):
             return
         self.clear_items()
         embed = EMBED.get_item_embed(type_, value)
-        if type_ == 'role':
-            activate = Button(style=ButtonStyle.green, label="Активировать", row=1)
-            activate.callback = partial(self.activate_role, type_, value)
-            self.add_item(activate)
+        activate = Button(style=ButtonStyle.green, label="Активировать", row=1)
+        activate.callback = partial(self.activate_item, type_, value)
+        self.add_item(activate)
+        give = Button(style=ButtonStyle.green, label="Подарить", row=1)
+        give.callback = partial(self.open_give, type_, value)
+        self.add_item(give)
         delete = Button(style=ButtonStyle.red, label="Удалить", row=1)
         delete.callback = partial(self.delete_item, type_, value)
         self.add_item(delete)
@@ -295,7 +320,7 @@ class ProfileView(View):
             return
         self.clear_items()
         await self.open_profile()
-        embed = EMBED.profile_embed(interaction.author)
+        embed = EMBED.profile_embed(self.user)
         await interaction.response.edit_message(embed=embed, view=self)
 
     async def edit_status(self, interaction: disnake.Interaction):
@@ -310,7 +335,7 @@ class ProfileView(View):
         if self.author != interaction.author:
             return
         self.clear_items()
-        embed, result = EMBED.social_network_embed(*User(interaction.author.id).get_social(), interaction.author)
+        embed, result = EMBED.social_network_embed(*User(self.user.id).get_social(), self.user)
         for soc, url in result.items():
             btn = Button(label=soc, style=disnake.ButtonStyle.url, row=1, url=url)
             self.add_item(btn)
