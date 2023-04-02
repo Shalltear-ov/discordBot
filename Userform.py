@@ -410,6 +410,13 @@ class EMBED_CLASS:
         embed.add_field(name="", value=f"{now.strftime(FORMAT_DATE)}", inline=False)
         return embed
 
+    @staticmethod
+    def image_embed(name, color=disnake.Color.from_rgb(*COLOR_EMBED)):
+        file = disnake.File(f"{name}", filename=f"{name}")
+        embed = Embed(color=color)
+        embed.set_image(file=file)
+        return embed
+
 class Select:
     @staticmethod
     def get_shop_sort_select(sort, reverse, emoji=None):
