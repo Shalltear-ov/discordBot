@@ -6,7 +6,7 @@ from disnake import ButtonStyle, Emoji
 from disnake.ui import Button
 
 from Userform import User, EMBED_CLASS, SHOP_ROLE, Select
-from View import SHOP as SHOP_VIEW, ProfileView, VersusGame
+from View import SHOP as SHOP_VIEW, ProfileView, VersusGame, Report_for_moder
 from config import SETTING
 from typing import Optional
 EMBED = EMBED_CLASS()
@@ -103,6 +103,14 @@ class Member(commands.Cog):
         await view.wait()
         await view.close()
         await ctx.edit_original_message(view=view)
+
+    @commands.slash_command(name="report", description="Let you play with specific user for any bet.",
+                            guild_ids=[SETTING['GUILD_ID']])
+    async def report(self, ctx: disnake.MessageCommandInteraction, member: Optional[disnake.Member], reason):
+        channel = self.bot.get_channel(972208614251053087)
+        view = Report_for_moder(ctx.author, member, reason)
+        await ctx.send("жалоба отправлена")
+        await channel.send(f"> поступила жалоба от {ctx.author.mention} на {member.mention} по причине {reason}", view=view)
 
 
 def setup(bot):
