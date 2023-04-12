@@ -5,6 +5,7 @@ from Userform import SHOP_ROLE, Select, EMBED_CLASS, User
 from config import SETTING
 import asyncio
 import requests
+from disnake.ext.commands import Bot
 import random
 from random import randint
 from functools import partial
@@ -369,3 +370,64 @@ class ProfileView(View):
         for item in self.children:
             item.disabled = True
         return self
+
+
+class Report_for_moder(View):
+    def __init__(self, author: disnake.Member, user: disnake.Member, reason):
+        super().__init__(timeout=None)
+        self.user = user
+        self.author = author
+        accept = Button(style=ButtonStyle.green, label="Принять", row=1)
+        accept.callback = self.accept
+        self.moder = None
+        self.add_item(accept)
+
+    async def accept(self, interaction: disnake.Interaction):
+        self.clear_items()
+        self.moder = interaction.author
+        await self.author.send(f"> ваша жалоба будет отработана {self.moder.mention}")
+        close = Button(style=ButtonStyle.green, label="Закрыть", row=1)
+        close.callback = self.commit
+        self.add_item(close)
+        await interaction.response.edit_message(f"> жалоба от {self.author.mention} обрабатывается {self.moder.mention}", view=self)
+
+    async def commit(self, interaction: disnake.Interaction):
+        self.clear_items()
+        view = Report_for_member()
+        await self.author.send("ваша жалоба была обработанна", view=view)
+        await interaction.response.edit_message("жду отзыва", view=self)
+        await view.wait()
+        await interaction.edit_original_message(f"оценка:{view.st}  отзыв:{view.fb}")
+
+
+class Report_for_member(View):
+    def __init__(self):
+        super().__init__(timeout=60)
+        feedback = Button(style=ButtonStyle.green, label="Оставить отзыв", row=1)
+        feedback.callback = self.feedback
+        self.st = None
+        self.fb = None
+        self.add_item(feedback)
+
+    async def feedback(self, interaction: disnake.Interaction):
+        self.clear_items()
+        for i in range(1, 10):
+            btn = Button(style=ButtonStyle.green, label=f"{i}")
+            btn.callback = partial(self.stars, i)
+            self.add_item(btn)
+        await interaction.response.edit_message("оценка", view=self)
+
+    async def stars(self, star, interaction: disnake.Interaction):
+        self.st = star
+        self.clear_items()
+        await interaction.response.edit_message("Напишите отзыв", view=self)
+        res: disnake.Message = await interaction.bot.wait_for("message", timeout=10)
+        self.fb = res.content
+        await interaction.send("спасибо за отзыв")
+        self.stop()
+
+
+
+
+
+
